@@ -1,7 +1,8 @@
 # pp-launcher
 Simple launcher in Python
 
-## TODO
-- system tray
-- configuration window
-- config file (.ini or something like that)
+## What is needed
+tkinter, subprocess, PIL, ConfigParser, re, ast, os
+
+## Launcher items
+All items are defined in pp-launcher.conf in [Items] section.

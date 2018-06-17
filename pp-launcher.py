@@ -5,6 +5,7 @@ from PIL import Image
 import ConfigParser as cp
 import re
 import ast
+import os
 
 class PpLauncher(tk.Frame):
 
@@ -55,9 +56,16 @@ class PpLauncher(tk.Frame):
 
     def renderIcon(self, icon, column):
         image = tk.PhotoImage(file=icon.icon)
-        btn = tk.Button(self.panel, text=icon.name, bd=0, width=64, height=64, command=lambda icon=icon: self.executeCommand(icon), image=image, relief='flat', bg='#000000')
+        btn = tk.Button(self.panel, text=icon.name, fg='#ffffff', bd=0, height=64, command=lambda icon=icon: self.executeCommand(icon), image=image, relief='flat', bg='#000000')
+
+        if(self.config.get('Main', 'ShowText') == 'true'):
+            btn.config(compound='left')
+        else:
+            btn.config(width=64)
+
         btn.config(highlightbackground='#000000')
         btn.config(activebackground='#000000')
+        btn.config(activeforeground='#ffffff')
         btn.config(highlightcolor=self.config.get('Main', 'ItemBorderColor'))
         btn.config(highlightthickness=2)
         btn.image = image
@@ -103,7 +111,8 @@ class PpLauncher(tk.Frame):
             return
 
         if(icon.cmd):
-            Popen(icon.cmd)
+            params = icon.cmd.split(" ")
+            Popen(params)
             self.quit()
         return
 
@@ -116,7 +125,8 @@ class PpLauncher(tk.Frame):
 
     def loadConfig(self):
         config = cp.ConfigParser()
-        config.read('pp-launcher.conf')
+        path = os.path.dirname(os.path.realpath(__file__)) + '/pp-launcher.conf'
+        config.read(path)
         self.config = config;
         self.loadItemsFromConfig(config)
         return
