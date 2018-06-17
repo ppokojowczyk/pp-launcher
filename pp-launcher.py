@@ -2,6 +2,9 @@
 import Tkinter as tk
 from subprocess import Popen
 from PIL import Image
+import ConfigParser as cp
+import re
+import ast
 
 class PpLauncher(tk.Frame):
 
@@ -35,6 +38,7 @@ class PpLauncher(tk.Frame):
         root.wm_attributes("-topmost", True)
         root.wm_attributes("-alpha", 0.9)
         root.config(bg='#000000')
+        self.loadConfig()
         self.initIcons()
         self.initPanel()
         self.renderIcons()
@@ -54,8 +58,8 @@ class PpLauncher(tk.Frame):
         btn = tk.Button(self.panel, text=icon.name, bd=0, width=64, height=64, command=lambda icon=icon: self.executeCommand(icon), image=image, relief='flat', bg='#000000')
         btn.config(highlightbackground='#000000')
         btn.config(activebackground='#000000')
-        btn.config(highlightcolor='#5895FF')
-        btn.config(highlightthickness=3)
+        btn.config(highlightcolor=self.config.get('Main', 'ItemBorderColor'))
+        btn.config(highlightthickness=2)
         btn.image = image
         btn.grid(row=0, column=column, padx=10, pady=10)
         icon.button = btn
@@ -108,10 +112,21 @@ class PpLauncher(tk.Frame):
         self.panel.grid(row=0)
 
     def initIcons(self):
-        #self.icons.append( self.Icon(name='Bluefish', icon='/usr/share/icons/hicolor/64x64/apps/bluefish.png', cmd='bluefish') )
-        self.icons.append( self.Icon(name='Smplayer', icon='/usr/share/icons/hicolor/64x64/apps/smplayer.png', cmd='smplayer') )
-        self.icons.append( self.Icon(name='Smplayer', icon='/usr/share/icons/hicolor/64x64/apps/smplayer.png', cmd='smplayer') )
         self.icons.append( self.Icon(name='Close', icon='/usr/share/icons/hicolor/48x48/apps/system-shutdown.png', cmd='app.quit') )
+
+    def loadConfig(self):
+        config = cp.ConfigParser()
+        config.read('pp-launcher.conf')
+        self.config = config;
+        self.loadItemsFromConfig(config)
+        return
+
+    def loadItemsFromConfig(self, config):
+        tmp = config.get('Items', 'Items')
+        items = ast.literal_eval(tmp)
+        for item in items:
+            self.icons.append( self.Icon(name=item['name'], icon=item['icon'], cmd=item['cmd']) )
+        return
 
 app = PpLauncher()
 app.master.title('pp-launcher')
