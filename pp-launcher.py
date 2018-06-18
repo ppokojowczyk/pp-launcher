@@ -52,6 +52,8 @@ class PpLauncher(tk.Frame):
         self.master.bind('<Escape>', lambda e:self.quit())
         self.master.bind('<Right>', lambda e:self.nextIcon())
         self.master.bind('<Left>', lambda e:self.prevIcon())
+        self.master.bind('<l>', lambda e:self.nextIcon())
+        self.master.bind('<j>', lambda e:self.prevIcon())
         self.master.bind('<Return>', lambda e:self.executeCommand(self.icons[self.currentIconIndex]))
 
     def renderIcon(self, icon, column):
@@ -125,7 +127,8 @@ class PpLauncher(tk.Frame):
 
     def loadConfig(self):
         config = cp.ConfigParser()
-        path = os.path.dirname(os.path.realpath(__file__)) + '/pp-launcher.conf'
+        #path = os.path.dirname(os.path.realpath(__file__)) + '/pp-launcher.conf'
+        path = '/home/ppokojowczyk/.pp-launcher.conf'
         config.read(path)
         self.config = config;
         self.loadItemsFromConfig(config)
