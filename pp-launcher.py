@@ -6,6 +6,7 @@ import ConfigParser as cp
 import re
 import ast
 import os
+import os.path
 
 class PpLauncher(tk.Frame):
 
@@ -23,10 +24,12 @@ class PpLauncher(tk.Frame):
     icons = [] # all icons should be kept here
     iconsCount = 0
     currentIconIndex = 0
+    currentPath = '';
 
     def __init__(self, master=None):
         tk.Frame.__init__(self, master, width=1920, bg='#000000', height=1080)
         root = self.master
+        self.currentPath = os.path.dirname(os.path.realpath(__file__)) + '/';
 
         screenWidth, screenHeight = root.winfo_screenwidth(), root.winfo_screenheight()
         root.wm_attributes('-type', 'normal')
@@ -57,7 +60,13 @@ class PpLauncher(tk.Frame):
         self.master.bind('<Return>', lambda e:self.executeCommand(self.icons[self.currentIconIndex]))
 
     def renderIcon(self, icon, column):
-        image = tk.PhotoImage(file=icon.icon)
+
+        # Check if icon file exists; if not then use generic one
+        if(os.path.isfile(icon.icon)):
+            image = tk.PhotoImage(file=icon.icon)
+        else:
+            image = tk.PhotoImage(file=self.currentPath + 'icon-1.png')
+
         btn = tk.Button(self.panel, text=icon.name, fg='#ffffff', bd=0, height=64, command=lambda icon=icon: self.executeCommand(icon), image=image, relief='flat', bg='#000000')
 
         if(self.config.get('Main', 'ShowText') == 'true'):
@@ -123,11 +132,13 @@ class PpLauncher(tk.Frame):
         self.panel.grid(row=0)
 
     def initIcons(self):
-        self.icons.append( self.Icon(name='Close', icon='/usr/share/icons/hicolor/48x48/apps/system-shutdown.png', cmd='app.quit') )
+        if(self.config.get('Main', 'ShowCloseButton') == 'true'):
+            self.icons.append( self.Icon(name='Close', icon=self.currentPath + 'icon-close.png', cmd='app.quit') )
+        else:
+            return
 
     def loadConfig(self):
         config = cp.ConfigParser()
-        #path = os.path.dirname(os.path.realpath(__file__)) + '/pp-launcher.conf'
         path = '/home/ppokojowczyk/.pp-launcher.conf'
         config.read(path)
         self.config = config;
@@ -138,7 +149,14 @@ class PpLauncher(tk.Frame):
         tmp = config.get('Items', 'Items')
         items = ast.literal_eval(tmp)
         for item in items:
-            self.icons.append( self.Icon(name=item['name'], icon=item['icon'], cmd=item['cmd']) )
+            newIcon = self.Icon()
+            if('name' in item):
+                newIcon.name = item['name']
+            if('icon' in item):
+                newIcon.icon = item['icon']
+            if('cmd' in item):
+                newIcon.cmd = item['cmd']
+            self.icons.append( newIcon )
         return
 
 app = PpLauncher()
