@@ -27,16 +27,15 @@ class PpLauncher(tk.Frame):
     currentPath = '';
 
     def __init__(self, master=None):
-        tk.Frame.__init__(self, master, width=1920, bg='#000000', height=1080)
+        tk.Frame.__init__(self, master, bg='#000000')
         root = self.master
         self.currentPath = os.path.dirname(os.path.realpath(__file__)) + '/';
-
-        screenWidth, screenHeight = root.winfo_screenwidth(), root.winfo_screenheight()
         root.wm_attributes('-type', 'normal')
         root.wm_attributes('-fullscreen', True)
+        root.attributes('-alpha', 1)
+        root.update_idletasks()
+        screenWidth, screenHeight = root.winfo_width(), root.winfo_height()
         self.config(width=screenWidth, height=screenHeight)
-        # root.overrideredirect(True)
-        # self.place(y=5000)
         self.grid(sticky='n')
         root.wait_visibility(root)
         root.wm_attributes("-topmost", True)
