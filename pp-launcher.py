@@ -10,7 +10,9 @@ import os.path
 
 class PpLauncher(tk.Frame):
 
-    # icon (item) class
+    #
+    # Icon (item) class.
+    #
     class Icon():
         def __init__(self, name = '', cmd = '', icon = ''):
             self.name = name
@@ -24,10 +26,15 @@ class PpLauncher(tk.Frame):
     icons = [] # all icons should be kept here
     iconsCount = 0
     currentIconIndex = 0
-    currentPath = '';
+    currentPath = ''
 
+    #
+    # Main function.
+    #
     def __init__(self, master=None):
         tk.Frame.__init__(self, master, bg='#000000')
+        if(self.checkConfig() == False):
+            self.quit()
         root = self.master
         self.currentPath = os.path.dirname(os.path.realpath(__file__)) + '/';
         root.wm_attributes('-type', 'normal')
@@ -47,11 +54,26 @@ class PpLauncher(tk.Frame):
         self.renderIcons()
         self.bindKeys()
 
+    #
+    # Check if configuration is valid.
+    # __TODO__ this should check if everything is ok; valid config exists?
+    #
+    def checkConfig(self):
+        return False
+
+    #
+    # Initialize status icon in tray.
+    # __TODO__ yet to be done
+    #
     def initStatusIcon(self):
         return
 
+    #
+    # Set keys bindings.
+    #
     def bindKeys(self):
         self.master.bind('<Escape>', lambda e:self.quit())
+        self.master.bind('<q>', lambda e:self.quit())
         self.master.bind('<Right>', lambda e:self.nextIcon())
         self.master.bind('<Left>', lambda e:self.prevIcon())
         self.master.bind('<l>', lambda e:self.nextIcon())
@@ -130,15 +152,24 @@ class PpLauncher(tk.Frame):
         self.panel = tk.Frame(self.master, borderwidth=0, relief="sunken", bg='')
         self.panel.grid(row=0)
 
+    #
+    # Get config option value.
+    #
+    def getOption(self, optionName):
+        sectionName = "Main";
+        if(self.config.has_option(sectionName, optionName)):
+            return self.config.get(sectionName, optionName);
+        return None; # or False?
+
     def initIcons(self):
-        if(self.config.get('Main', 'ShowCloseButton') == 'true'):
-            self.icons.append( self.Icon(name='Close', icon=self.currentPath + 'icon-close.png', cmd='app.quit') )
+        if(self.getOption("ShowCloseButton") == "true"):
+            self.icons.append( self.Icon(name='Close', icon=self.currentPath + '/icons/close.png', cmd='app.quit') )
         else:
             return
 
     def loadConfig(self):
         config = cp.ConfigParser()
-        path = '/home/ppokojowczyk/.pp-launcher.conf'
+        path = './pp-launcher.conf'
         config.read(path)
         self.config = config;
         self.loadItemsFromConfig(config)
